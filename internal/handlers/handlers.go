@@ -32,7 +32,7 @@ func LoadHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	content := string(bytes)
-	result, err := service.Service(content)
+	result, err := service.AutoDetect(content)
 	if err != nil {
 		http.Error(w, "Ошибка конвертации: "+err.Error(), http.StatusInternalServerError)
 		return
