@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,12 +16,12 @@ func IndexHandler(w http.ResponseWriter, req *http.Request) {
 }
 func LoadHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
-		http.Error(w, "Ожидался запрос", http.StatusBadRequest)
+		http.Error(w, "Ожидался запрос", http.StatusInternalServerError)
 		return
 	}
 	file, fileHeader, err := req.FormFile("myFile")
 	if err != nil {
-		http.Error(w, "Не удалось получить файл: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, "Не удалось получить файл: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer file.Close()
@@ -46,5 +47,7 @@ func LoadHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(result))
+	if _, err := w.Write([]byte(result)); err != nil {
+		log.Printf("Ошибка при отправке ответа: %v", err)
+	}
 }

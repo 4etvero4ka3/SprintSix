@@ -8,14 +8,10 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-
-	// Создаем сервер
+	logger := log.New(os.Stdout, "", 0)
 	srv := server.NewServer(logger)
-
-	// Запускаем сервер
-	logger.Println("Запуск сервера на порту 8080...")
-	if err := srv.HTTPServer.ListenAndServe(); err != nil {
-		logger.Fatalf("Ошибка при запуске сервера: %v", err)
+	err := srv.Start()
+	if err != nil {
+		logger.Fatal(err)
 	}
 }

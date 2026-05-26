@@ -4,34 +4,35 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/Yandex-Practicum/go1fl-sprint6-final/internal/handlers"
+	"github.com/go-chi/chi/v5"
 )
 
 type Server struct {
-	Logger     *log.Logger
-	HTTPServer *http.Server
+	logger     *log.Logger
+	httpServer *http.Server
 }
 
 func NewServer(logger *log.Logger) *Server {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
-		logger.Println("Обработка запроса на /")
-		res.Write([]byte("Добро пожаловать!"))
-	})
-	mux.HandleFunc("/alphabet", func(res http.ResponseWriter, req *http.Request) {
-		logger.Println("Обработка запроса на /alphabet")
-		res.Write([]byte("ОК"))
-	})
+	r := chi.NewRouter()
+	r.Get("/", handlers.IndexHandler)
+	r.Post("/upload", handlers.LoadHandler)
+
 	httpServer := &http.Server{
 		Addr:         ":8080",
-		Handler:      mux,
+		Handler:      r,
 		ErrorLog:     logger,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  15 * time.Second,
 	}
-
 	return &Server{
-		Logger:     logger,
-		HTTPServer: httpServer,
+		logger:     logger,
+		httpServer: httpServer,
 	}
+}
+func (s *Server) Start() error {
+	s.logger.Println("Запуск сервера на :8080")
+	return s.httpServer.ListenAndServe()
 }
